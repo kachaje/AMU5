@@ -9,10 +9,16 @@ class PatientsController < ApplicationController
     @encounters = @patient.encounters.active.find(:all, :conditions => ["encounter_datetime >= ? AND encounter_datetime <= ?", 
         @current_range[0]["START"], @current_range[0]["END"]]) rescue []
     
+    @all_encounters = @patient.encounters.active.find(:all) rescue []
+    
     @encounter_names = @patient.encounters.active.find(:all, :conditions => ["encounter_datetime >= ? AND encounter_datetime <= ?", 
         @current_range[0]["START"], @current_range[0]["END"]]).map{|encounter| encounter.name}.uniq rescue []
 
     @names = @encounters.collect{|e|
+      e.name.upcase
+    }.uniq
+    
+    @all_names = @all_encounters.collect{|e|
       e.name.upcase
     }.uniq
     
@@ -21,19 +27,23 @@ class PatientsController < ApplicationController
       e.name.upcase
     }
     
-    @obstretrics_alert = (@names.include?("OBSTETRIC HISTORY") ? false : true)
+    @obstretrics_alert = (@all_names.include?("OBSTETRIC HISTORY") ? false : true)
     
-    @medics_alert = (@names.include?("MEDICAL HISTORY") ? false : true)
+    @medics_alert = (@all_names.include?("MEDICAL HISTORY") ? false : true)
     
-    @social_alert = (@names.include?("SOCIAL HISTORY") ? false : true)
+    @social_alert = (@all_names.include?("SOCIAL HISTORY") ? false : true)
+    
+    @labs_alert = (@all_names.include?("LAB RESULTS") ? false : true)
     
     @sections = {
       "OBSTETRIC HISTORY" => {},
       "MEDICAL HISTORY" => {},
-      "SOCIAL HISTORY" => {}
+      "SOCIAL HISTORY" => {},
+      "SURGICAL HISTORY" => {},      
+      "LAB RESULTS" => {}
     }
     
-    @encounters.each{|e|
+    @all_encounters.each{|e|
       if !e.type.nil?
         case e.type.name
         when "OBSTETRIC HISTORY"
@@ -48,13 +58,38 @@ class PatientsController < ApplicationController
           e.observations.each{|o|
             @sections["SOCIAL HISTORY"][o.concept.name.name] = (o.answer_string rescue "") if !o.concept.nil?
           }
+        when "SURGICAL HISTORY"
+          e.observations.each{|o|
+            if !o.concept.nil?
+              if @sections["SURGICAL HISTORY"][o.concept.name.name]
+                @sections["SURGICAL HISTORY"][o.concept.name.name] += "; " + (o.answer_string rescue "") if !o.concept.nil?
+              else
+                @sections["SURGICAL HISTORY"][o.concept.name.name] = (o.answer_string rescue "") if !o.concept.nil?
+              end   
+            end
+          }
+        when "LAB RESULTS"
+          e.observations.each{|o|
+            if !o.concept.nil?
+              if @sections["LAB RESULTS"][o.concept.name.name]
+                @sections["LAB RESULTS"][o.concept.name.name] = ((o.answer_string rescue 0).to_i > 
+                    (@sections["LAB RESULTS"][o.concept.name.name].to_i) ? (o.answer_string rescue 0) : 
+                    @sections["LAB RESULTS"][o.concept.name.name] )  if !o.concept.nil? 
+              else
+                @sections["LAB RESULTS"][o.concept.name.name] = (o.answer_string rescue "") if !o.concept.nil?
+              end   
+            end
+          }
         end
       end
     }
     
-    @obstetrics_selected = nil
-    @medics_selected = nil
-    @social_selected = nil
+    @obstetrics_selected = false
+    @medics_selected = false
+    @social_selected = false
+    @labs_selected = false
+    
+    # raise @sections.to_yaml
     
     @sections["OBSTETRIC HISTORY"].each{|o,a|
       case o.titleize
@@ -68,17 +103,17 @@ class PatientsController < ApplicationController
           @obstetrics_selected = true
           break
         end
-      when "Still Birth"
-        if a.titleize == "Yes"
+      when "Condition At Birth"
+        if a.titleize == "Still Birth"
           @obstetrics_selected = true
           break
         end
-      when "Caesarean section"
-        if a.titleize == "Yes"
+      when "Method Of Delivery"
+        if a.titleize == "Caesarean Section"
           @obstetrics_selected = true
           break
         end
-      when "Vacuum extraction delivery"
+      when "Vacuum Extraction Delivery"
         if a.titleize == "Yes"
           @obstetrics_selected = true
           break
@@ -93,13 +128,17 @@ class PatientsController < ApplicationController
           @obstetrics_selected = true
           break
         end
-      when "Pre-Eclampsia"
+      when "Pre Eclampsia"
         if a.titleize == "Yes"
           @obstetrics_selected = true
           break
         end
       end
     }    
+    
+    if @sections["SURGICAL HISTORY"].length > 0
+      @medics_selected = true
+    end
     
     @sections["MEDICAL HISTORY"].each{|o,a|
       case o.titleize
@@ -161,7 +200,28 @@ class PatientsController < ApplicationController
       end
     }
     
-    # raise @sections.to_yaml
+    
+    @sections["LAB RESULTS"].each{|o,a|
+      case o.titleize
+      when "Hb Test Result"
+        if a.to_s.upcase != "NOT DONE" && a.to_i <= 11
+          @labs_selected = true
+          break
+        end
+      when "Syphilis Test Result"
+        if a.to_s.upcase != "NOT DONE" && a.titleize == "Positive"
+          @labs_selected = true
+          break
+        end
+      when "HIV status"
+        if a.to_s.upcase != "NOT DONE" && a.titleize == "Positive"
+          @labs_selected = true
+          break
+        end
+      end
+    }
+    
+    # raise @labs_selected.to_yaml
     
     render :layout => 'dynamic-dashboard'
   end
@@ -633,7 +693,7 @@ class PatientsController < ApplicationController
 
     @drugs = {}; 
     @other_drugs = {}; 
-    main_drugs = ["TTV", "SP", "Fefol", "NVP", "TDF/3TC/EFV", "Albendazole"]
+    main_drugs = ["TTV", "SP", "Fefol", "NVP", "TDF/3TC/EFV"]
     
     @patient.encounters.active.find(:all, :order => "encounter_datetime DESC", 
       :conditions => ["encounter_type = ? AND encounter_datetime >= ? AND encounter_datetime <= ?", 
@@ -1013,6 +1073,28 @@ class PatientsController < ApplicationController
   
   def visit_type
     @patient = Patient.find(params[:patient_id]  || params[:id] || session[:patient_id]) rescue nil    
+  end
+  
+  def social_history
+    @patient = Patient.find(params[:patient_id]  || params[:id] || session[:patient_id]) rescue nil 
+    
+    religions = ["Jehovahs Witness",  
+      "Roman Catholic", 
+      "Presbyterian (C.C.A.P.)",
+      "Seventh Day Adventist", 
+      "Baptist", 
+      "Moslem",
+      "Other"]
+    
+    @religions = Observation.find(:all, :joins => [:concept, :encounter], 
+      :conditions => ["obs.concept_id = ? AND NOT value_text IN (?) AND " + 
+          "encounter_type = ?", 
+        ConceptName.find_by_name("Other").concept_id, religions, 
+        EncounterType.find_by_name("SOCIAL HISTORY").id]).collect{|o| o.value_text}
+    
+    @religions = religions + @religions
+    
+    # raise @religions.to_yaml
   end
   
   private

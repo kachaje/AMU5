@@ -500,7 +500,8 @@ EOF
       "AGE AT DEATH", "UNITS OF AGE OF CHILD", "PROCEDURE DONE"]
     current_level = 0
     
-    @patient.encounters.active.all.each{|e| 
+    Encounter.find(:all, :conditions => ["encounter_type = ? AND patient_id = ?", 
+        EncounterType.find_by_name("OBSTETRIC HISTORY").id, @patient.id]).each{|e| 
       e.observations.active.each{|obs|
         concept = obs.concept.name.name rescue nil
         if(!concept.nil?)
@@ -557,7 +558,7 @@ EOF
     label.draw_text("Year",59,65,0,2,1,1,false)
     label.draw_text("Place",110,65,0,2,1,1,false)
     label.draw_text("Gest.",225,65,0,2,1,1,false)
-    label.draw_text("(wks)",225,85,0,2,1,1,false)
+    label.draw_text("months",223,85,0,2,1,1,false)
     label.draw_text("Labour",305,65,0,2,1,1,false)
     label.draw_text("durat.",305,85,0,2,1,1,false)
     label.draw_text("(hrs)",310,105,0,2,1,1,false)
@@ -615,6 +616,15 @@ EOF
       @cond = (@obstetrics[pos] ? (@obstetrics[pos]["CONDITION AT BIRTH"] ? 
             @obstetrics[pos]["CONDITION AT BIRTH"] : "") : "").titleize
         
+      @birt_weig = (@obstetrics[pos] ? (@obstetrics[pos]["BIRTH WEIGHT"] ? 
+                @obstetrics[pos]["BIRTH WEIGHT"] : "") : "")
+      
+      @dea = (@obstetrics[pos] ? (@obstetrics[pos]["AGE AT DEATH"] ? 
+                  (@obstetrics[pos]["AGE AT DEATH"].to_s.match(/\.[1-9]/) ? @obstetrics[pos]["AGE AT DEATH"] : 
+                    @obstetrics[pos]["AGE AT DEATH"].to_i) : "") : "").to_s + 
+              (@obstetrics[pos] ? (@obstetrics[pos]["UNITS OF AGE OF CHILD"] ? 
+                  @obstetrics[pos]["UNITS OF AGE OF CHILD"] : "") : "")
+      
       if pos <= 3
         
         label.draw_text(pos,28,(85 + (60 * pos)),0,2,1,1,false)
@@ -657,18 +667,29 @@ EOF
           }
         end
         
-        label.draw_text((@obstetrics[pos] ? (@obstetrics[pos]["BIRTH WEIGHT"] ? 
-                @obstetrics[pos]["BIRTH WEIGHT"] : "") : ""),620,(70 + (60 * pos)),0,2,1,1,false)
+        if @birt_weig.length < 6
+          label.draw_text(@birt_weig,620,(70 + (60 * pos)),0,2,1,1,false)
+        else
+          @birt_weig = paragraphate(@birt_weig, 4)
         
+          (0..(@birt_weig.length)).each{|p|
+            label.draw_text(@birt_weig[p],620,(70 + (60 * pos) + (18 * p)),0,2,1,1,false)
+          }
+        end
+                        
         label.draw_text((@obstetrics[pos] ? (@obstetrics[pos]["ALIVE"] ? 
                 @obstetrics[pos]["ALIVE"] : "") : ""),687,(70 + (60 * pos)),0,2,1,1,false)
         
-        label.draw_text(truncate((@obstetrics[pos] ? (@obstetrics[pos]["AGE AT DEATH"] ? 
-                  (@obstetrics[pos]["AGE AT DEATH"].to_s.match(/\.[1-9]/) ? @obstetrics[pos]["AGE AT DEATH"] : 
-                    @obstetrics[pos]["AGE AT DEATH"].to_i) : "") : "").to_s + 
-              (@obstetrics[pos] ? (@obstetrics[pos]["UNITS OF AGE OF CHILD"] ? 
-                  @obstetrics[pos]["UNITS OF AGE OF CHILD"] : "") : ""), 5),745,(70 + (60 * pos)),0,2,1,1,false)
+        if @dea.length < 6
+          label.draw_text(@dea,745,(70 + (60 * pos)),0,2,1,1,false)
+        else
+          @dea = paragraphate(@dea, 4)
         
+          (0..(@dea.length)).each{|p|
+            label.draw_text(@dea[p],745,(70 + (60 * pos) + (18 * p)),0,2,1,1,false)
+          }
+        end
+           
         label.draw_line(20,((135 + (45 * pos)) <= 305 ? (125 + (60 * pos)) : 305),800,2,0)
         
       elsif pos >= 4 && pos <= 8
@@ -728,18 +749,29 @@ EOF
           }
         end
         
-        label2.draw_text((@obstetrics[pos] ? (@obstetrics[pos]["BIRTH WEIGHT"] ? 
-                @obstetrics[pos]["BIRTH WEIGHT"] : "") : ""),620,((55 * (pos - 3)) - 13),0,2,1,1,false)
+        if @birt_weig.length < 6
+          label2.draw_text(@birt_weig,620,((55 * (pos - 3)) - 13),0,2,1,1,false)
+        else
+          @birt_weig = paragraphate(@birt_weig, 4)
         
+          (0..(@birt_weig.length)).each{|p|
+            label2.draw_text(@birt_weig[p],620,(55 * (pos - 3) + (18 * p))-17,0,2,1,1,false)
+          }
+        end
+           
         label2.draw_text((@obstetrics[pos] ? (@obstetrics[pos]["ALIVE"] ? 
                 @obstetrics[pos]["ALIVE"] : "") : ""),687,((55 * (pos - 3)) - 13),0,2,1,1,false)
         
-        label2.draw_text(truncate((@obstetrics[pos] ? (@obstetrics[pos]["AGE AT DEATH"] ? 
-                  (@obstetrics[pos]["AGE AT DEATH"].to_s.match(/\.[1-9]/) ? @obstetrics[pos]["AGE AT DEATH"] : 
-                    @obstetrics[pos]["AGE AT DEATH"].to_i) : "") : "").to_s + 
-              (@obstetrics[pos] ? (@obstetrics[pos]["UNITS OF AGE OF CHILD"] ? 
-                  @obstetrics[pos]["UNITS OF AGE OF CHILD"] : "") : ""),5),745,((55 * (pos - 3)) - 13),0,2,1,1,false)
+        if @dea.length < 6
+          label2.draw_text(@dea,745,((55 * (pos - 3)) - 13),0,2,1,1,false)
+        else
+          @dea = paragraphate(@dea, 4)
         
+          (0..(@dea.length)).each{|p|
+            label2.draw_text(@dea[p],745,(55 * (pos - 3) + (18 * p))-17,0,2,1,1,false)
+          }
+        end
+           
         label2.draw_line(20,(((55 * (pos - 3)) + 35) <= 305 ? ((55 * (pos - 3)) + 35) : 305),800,2,0)
         label2set = true
       else
@@ -799,18 +831,29 @@ EOF
           }
         end
         
-        label3.draw_text((@obstetrics[pos] ? (@obstetrics[pos]["BIRTH WEIGHT"] ? 
-                @obstetrics[pos]["BIRTH WEIGHT"] : "") : ""),620,((55 * (pos - 8)) - 13),0,2,1,1,false)
+        if @birt_weig.length < 6
+          label3.draw_text(@birt_weig,620,(70 + (60 * pos)),0,2,1,1,false)
+        else
+          @birt_weig = paragraphate(@birt_weig, 4)
         
+          (0..(@birt_weig.length)).each{|p|
+            label3.draw_text(@birt_weig[p],620,(55 * (pos - 3) + (18 * p))-17,0,2,1,1,false)
+          }
+        end
+          
         label3.draw_text((@obstetrics[pos] ? (@obstetrics[pos]["ALIVE"] ? 
                 @obstetrics[pos]["ALIVE"] : "") : ""),687,((55 * (pos - 8)) - 13),0,2,1,1,false)
         
-        label3.draw_text(truncate((@obstetrics[pos] ? (@obstetrics[pos]["AGE AT DEATH"] ? 
-                  (@obstetrics[pos]["AGE AT DEATH"].to_s.match(/\.[1-9]/) ? @obstetrics[pos]["AGE AT DEATH"] : 
-                    @obstetrics[pos]["AGE AT DEATH"].to_i) : "") : "").to_s + 
-              (@obstetrics[pos] ? (@obstetrics[pos]["UNITS OF AGE OF CHILD"] ? 
-                  @obstetrics[pos]["UNITS OF AGE OF CHILD"] : "") : ""),5),745,((55 * (pos - 8)) - 13),0,2,1,1,false)
+        if @dea.length < 6
+          label3.draw_text(@dea,745,((55 * (pos - 3)) - 13),0,2,1,1,false)
+        else
+          @dea = paragraphate(@dea, 4)
         
+          (0..(@dea.length)).each{|p|
+            label3.draw_text(@dea[p],745,(55 * (pos - 3) + (18 * p))-17,0,2,1,1,false)
+          }
+        end
+           
         label3.draw_line(20,(((55 * (pos - 8)) + 35) <= 305 ? ((55 * (pos - 8)) + 35) : 305),800,2,0)
         label3set = true
       end
@@ -1196,8 +1239,11 @@ EOF
     label.draw_text("Prote-",499,156,0,2,1,1,false)
     label.draw_text("in",505,174,0,2,1,1,false)
     label.draw_text("SP",595,140,0,2,1,1,false)
+    label.draw_text("(tabs)",575,158,0,2,1,1,false)
     label.draw_text("FeFo",664,140,0,2,1,1,false)
+    label.draw_text("(tabs)",655,158,0,2,1,1,false)
     label.draw_text("Albe.",740,140,0,2,1,1,false)
+    label.draw_text("(mg)",740,156,0,2,1,1,false)
     label.draw_text("Age",35,158,0,2,1,1,false)
     label.draw_text("Height",99,158,0,2,1,1,false)
     label.draw_text("Pres.",178,158,0,2,1,1,false)
@@ -1243,7 +1289,7 @@ EOF
         }
         
         fet = (encounters[encounter[0]]["OBSERVATIONS"]["FETAL HEART BEAT"].humanize == "Unknown" ? "?" :
-            encounters[encounter[0]]["OBSERVATIONS"]["FETAL HEART BEAT"].humanize) rescue ""
+            encounters[encounter[0]]["OBSERVATIONS"]["FETAL HEART BEAT"].humanize).gsub(/Fetal\smovement\sfelt\s\(fmf\)/i,"FMF") rescue ""
         
         fet = paragraphate(fet, 5, 5)
         

@@ -61,7 +61,7 @@
                   <%= (@social_alert ? " alertTab='true'" : (@social_selected ? " selectedTab='true'" : "")) %> >
             Social History</option>
           <option value='/patients/tab_lab_results?patient_id=<%= @patient.id  %>'
-                  <%= (@labs_alert ? " alertTab='true'" : "") %> >Lab Results</option>
+                  <%= (@labs_alert == true ? " alertTab='true'" : (@labs_selected == true ? " selectedTab='true'" : "")) %> >Lab Results</option>
           <option value='/patients/tab_detailed_obstetric_history?patient_id=<%= @patient.id  %>'>Detailed Obstetric History</option>
           <option value='/patients/tab_visit_history?patient_id=<%= @patient.id  %>'>Current Pregnancy</option>
         </select>

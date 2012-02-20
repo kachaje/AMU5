@@ -245,7 +245,12 @@ class EncountersController < ApplicationController
   def anc_diagnoses
 
     search_string         = (params[:search_string] || '').upcase
-
+    exceptions = []
+    
+    params.each{|key, param|
+      exceptions << param if key.match(/^v\d/)
+    }
+    
     diagnosis_concepts = ["Malaria", 
       "Anaemia", 
       "Severe Anaemia", 
@@ -263,7 +268,7 @@ class EncountersController < ApplicationController
       "Abdominal Pain", 
       "Pneumonia", 
       "Threatened Abortion", 
-      "Extensive Warts"]
+      "Extensive Warts"] - exceptions
   
     @results = diagnosis_concepts.collect{|e| e}.delete_if{|x| !x.match(/^#{search_string}/)}
 
