@@ -29,7 +29,8 @@
   <%= touch_date_tag "Date", @patient, nil,
     {:id => "date_done1",
     :helptext => "Date Procedure Done",
-    :tt_onUnLoad => "__$('observations__obs_datetime_surgical1').value = __$('date_done1').value" } %>
+    :tt_onUnLoad => "if(__$('date_done#{1}').value != 'Unknown') {__$('observations__obs_datetime_surgical#{1}').value = " + 
+        "__$('date_done#{1}').value} else {__$('observations__obs_datetime_surgical#{1}').value = '#{DateTime.now}'}" } %>
 
   <% (2..8).each do |e| %>
 
@@ -61,7 +62,8 @@
       {:id => "date_done#{e}",
       :helptext => "Date #{e}#{indice} Procedure Done",
       :condition => "__$('surgical#{e}').value != ''",
-      :tt_onUnLoad => "__$('observations__obs_datetime_surgical#{e}').value = __$('date_done#{e}').value"
+      :tt_onUnLoad => "if(__$('date_done#{e}').value != 'Unknown') {__$('observations__obs_datetime_surgical#{e}').value = " + 
+        "__$('date_done#{e}').value} else {__$('observations__obs_datetime_surgical#{e}').value = '#{DateTime.now}'}"
     } %>
 
   <% end %>

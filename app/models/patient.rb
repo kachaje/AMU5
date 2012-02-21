@@ -1275,9 +1275,9 @@ EOF
         label.draw_text(gest,29,200,0,2,1,1,false)
         
         fund = (encounters[encounter[0]]["OBSERVATIONS"]["FUNDUS"].to_i <= 0 ? "?" : 
-            encounters[encounter[0]]["OBSERVATIONS"]["FUNDUS"].to_i.to_s + "(wks)") rescue ""
+            encounters[encounter[0]]["OBSERVATIONS"]["FUNDUS"].to_i.to_s + "wks") rescue ""
             
-        label.draw_text(fund,99,200,0,2,1,1,false)
+        label.draw_text(fund,97,200,0,2,1,1,false)
         
         posi = encounters[encounter[0]]["OBSERVATIONS"]["POSITION"] rescue ""
         pres = encounters[encounter[0]]["OBSERVATIONS"]["PRESENTATION"] rescue ""

@@ -33,7 +33,7 @@ class PatientsController < ApplicationController
     
     @social_alert = (@all_names.include?("SOCIAL HISTORY") ? false : true)
     
-    @labs_alert = (@all_names.include?("LAB RESULTS") ? false : true)
+    @labs_alert = ((@all_names.include?("LAB RESULTS") || @all_names.include?("VITALS")) ? false : true)
     
     @sections = {
       "OBSTETRIC HISTORY" => {},
@@ -68,7 +68,7 @@ class PatientsController < ApplicationController
               end   
             end
           }
-        when "LAB RESULTS"
+        when "LAB RESULTS" || "VITALS"
           e.observations.each{|o|
             if !o.concept.nil?
               if @sections["LAB RESULTS"][o.concept.name.name]
@@ -199,7 +199,6 @@ class PatientsController < ApplicationController
         end
       end
     }
-    
     
     @sections["LAB RESULTS"].each{|o,a|
       case o.titleize
