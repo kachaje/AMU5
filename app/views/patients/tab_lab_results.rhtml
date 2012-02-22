@@ -75,7 +75,7 @@
         <td style="border-left: 1px solid #000;
             border-bottom: 1px solid #000;
             border-right: 1px solid #000;"
-            align="center" <%= (!@hb1.nil? ? (@hb1.to_i <= 11 ? "class='selected'" : "") : "") %> >
+            align="center" <%= (!@hb1.nil? ? (@hb1.to_i <= 11 && @hb1.to_s.upcase != "NOT DONE" ? "class='selected'" : "") : "") %> >
           &nbsp;<%= @hb1 %>&nbsp;
         </td>
       </tr>
@@ -91,7 +91,7 @@
         <td style="border-left: 1px solid #000;
             border-bottom: 1px solid #000;
             border-right: 1px solid #000;"
-            align="center" <%= (!@hb2.nil? ? (@hb2.to_i <= 11 ? "class='selected'" : "") : "") %>>
+            align="center" <%= (!@hb2.nil? ? (@hb2.to_i <= 11 && @hb2.to_s.upcase != "NOT DONE" ? "class='selected'" : "") : "") %>>
           &nbsp;<%= @hb2 %>&nbsp;
         </td>
       </tr>

@@ -68,7 +68,7 @@ class PatientsController < ApplicationController
               end   
             end
           }
-        when "LAB RESULTS" || "VITALS"
+        when "LAB RESULTS" # || "VITALS"
           e.observations.each{|o|
             if !o.concept.nil?
               if @sections["LAB RESULTS"][o.concept.name.name]
@@ -212,7 +212,7 @@ class PatientsController < ApplicationController
           @labs_selected = true
           break
         end
-      when "HIV status"
+      when "Hiv Status"
         if a.to_s.upcase != "NOT DONE" && a.titleize == "Positive"
           @labs_selected = true
           break
