@@ -1021,29 +1021,29 @@ EOF
     label.draw_text("#{@gravida}",280,80,0,2,1,1,false)
     label.draw_text("#{@deliveries}",280,110,0,2,1,1,(@deliveries > 4 ? true : false))
     label.draw_text("#{@abortions}",280,140,0,2,1,1,(@abortions > 1 ? true : false))
-    label.draw_text("#{(!@stillbirths.nil? ? (@stillbirths == "NO" ? "NO" : "YES") : "")}",280,170,0,2,1,1,
-      (!@stillbirths.nil? ? (@stillbirths == "NO" ? false : true) : false))
+    label.draw_text("#{(!@stillbirths.nil? ? (@stillbirths.upcase == "NO" ? "NO" : "YES") : "")}",280,170,0,2,1,1,
+      (!@stillbirths.nil? ? (@stillbirths.upcase == "NO" ? false : true) : false))
     label.draw_text("#{(!@vacuum.nil? ? (@vacuum > 0 ? "YES" : "NO") : "")}",280,200,0,2,1,1,
       (!@vacuum.nil? ? (@vacuum > 0 ? true : false) : false))
-    label.draw_text("#{(!@symphosio.nil? ? (@symphosio == "NO" ? "NO" : "YES") : "")}",280,230,0,2,1,1,
-      (!@symphosio.nil? ? (@symphosio == "NO" ? false : true) : false))
-    label.draw_text("#{@haemorrhage}",280,260,0,2,1,1,(@haemorrhage == "PPH" ? true : false))
-    label.draw_text("#{(!@preeclampsia.nil? ? (@preeclampsia == "NO" ? "NO" : "YES") : "")}",280,285,0,2,1,1,
-      (!@preeclampsia.nil? ? (@preeclampsia == "NO" ? false : true) : false))
+    label.draw_text("#{(!@symphosio.nil? ? (@symphosio.upcase == "NO" ? "NO" : "YES") : "")}",280,230,0,2,1,1,
+      (!@symphosio.nil? ? (@symphosio.upcase == "NO" ? false : true) : false))
+    label.draw_text("#{@haemorrhage}",280,260,0,2,1,1,(@haemorrhage.upcase == "PPH" ? true : false))
+    label.draw_text("#{(!@preeclampsia.nil? ? (@preeclampsia.upcase == "NO" ? "NO" : "YES") : "")}",280,285,0,2,1,1,
+      (!@preeclampsia.nil? ? (@preeclampsia.upcase == "NO" ? false : true) : false))
     
-    label.draw_text("#{(!@asthma.nil? ? (@asthma == "NO" ? "NO" : "YES") : "")}",690,80,0,2,1,1,
-      (!@asthma.nil? ? (@asthma == "NO" ? false : true) : false))
-    label.draw_text("#{(!@hyper.nil? ? (@hyper == "NO" ? "NO" : "YES") : "")}",690,110,0,2,1,1,
-      (!@hyper.nil? ? (@hyper == "NO" ? false : true) : false))
-    label.draw_text("#{(!@diabetes.nil? ? (@diabetes == "NO" ? "NO" : "YES") : "")}",690,140,0,2,1,1,
-      (!@diabetes.nil? ? (@diabetes == "NO" ? false : true) : false))
-    label.draw_text("#{(!@epilepsy.nil? ? (@epilepsy == "NO" ? "NO" : "YES") : "")}",690,170,0,2,1,1,
-      (!@epilepsy.nil? ? (@epilepsy == "NO" ? false : true) : false))
-    label.draw_text("#{(!@renal.nil? ? (@renal == "NO" ? "NO" : "YES") : "")}",690,200,0,2,1,1,
+    label.draw_text("#{(!@asthma.nil? ? (@asthma.upcase == "NO" ? "NO" : "YES") : "")}",690,80,0,2,1,1,
+      (!@asthma.nil? ? (@asthma.upcase == "NO" ? false : true) : false))
+    label.draw_text("#{(!@hyper.nil? ? (@hyper.upcase == "NO" ? "NO" : "YES") : "")}",690,110,0,2,1,1,
+      (!@hyper.nil? ? (@hyper.upcase == "NO" ? false : true) : false))
+    label.draw_text("#{(!@diabetes.nil? ? (@diabetes.upcase == "NO" ? "NO" : "YES") : "")}",690,140,0,2,1,1,
+      (!@diabetes.nil? ? (@diabetes.upcase == "NO" ? false : true) : false))
+    label.draw_text("#{(!@epilepsy.nil? ? (@epilepsy.upcase == "NO" ? "NO" : "YES") : "")}",690,170,0,2,1,1,
+      (!@epilepsy.nil? ? (@epilepsy.upcase == "NO" ? false : true) : false))
+    label.draw_text("#{(!@renal.nil? ? (@renal.upcase == "NO" ? "NO" : "YES") : "")}",690,200,0,2,1,1,
       (!@renal.nil? ? (@renal == "NO" ? false : true) : false))
-    label.draw_text("#{(!@fistula.nil? ? (@fistula == "NO" ? "NO" : "YES") : "")}",690,230,0,2,1,1,
-      (!@fistula.nil? ? (@fistula == "NO" ? false : true) : false))
-    label.draw_text("#{(!@deform.nil? ? (@deform == "NO" ? "NO" : "YES") : "")}",690,260,0,2,1,1,
+    label.draw_text("#{(!@fistula.nil? ? (@fistula.upcase == "NO" ? "NO" : "YES") : "")}",690,230,0,2,1,1,
+      (!@fistula.nil? ? (@fistula.upcase == "NO" ? false : true) : false))
+    label.draw_text("#{(!@deform.nil? ? (@deform.upcase == "NO" ? "NO" : "YES") : "")}",690,260,0,2,1,1,
       (!@deform.nil? ? (@deform == "NO" ? false : true) : false))
     label.draw_text("#{@age}",690,285,0,2,1,1,
       (((@age > 0 && @age < 16) || (@age > 40)) ? true : false))
