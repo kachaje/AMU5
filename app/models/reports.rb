@@ -11,16 +11,17 @@ class Reports
     @end_age = end_age
     @type = type
     
-    @enddate = @end_date 
-    @startdate = (@enddate.to_date - 9.month).strftime("%Y-%m-%d")
+    @enddate = ((@end_date.to_date - 6.month).strftime("%Y-%m-01").to_date - 1.day).strftime("%Y-%m-%d")
+    @startdate = (@enddate.to_date).strftime("%Y-%m-01")
     
     @cohortpatients = Encounter.find(:all, :joins => [:observations], :group => [:patient_id], 
       :select => ["MAX(obs_datetime) encounter_datetime, patient_id"], 
-      :conditions => ["encounter_type = ? AND concept_id = ? AND (value_datetime >= ? AND value_datetime <= ?)", 
-        EncounterType.find_by_name("CURRENT PREGNANCY").id, 
-        ConceptName.find_by_name("DATE OF LAST MENSTRUAL PERIOD").concept_id, 
+      :conditions => ["encounter_type = ? AND concept_id = ? AND (encounter_datetime >= ? " + 
+          "AND encounter_datetime <= ?) AND value_numeric = 1", 
+        EncounterType.find_by_name("ANC VISIT TYPE").id, 
+        ConceptName.find_by_name("Reason For Visit").concept_id, 
         @startdate, @enddate]).collect{|e| e.patient_id}
-
+    
   end
 
   def new_women_registered

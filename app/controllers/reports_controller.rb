@@ -143,6 +143,8 @@ class ReportsController < ApplicationController
     
 		report = Reports.new(@start_date, @end_date, @start_age, @end_age, @type)
 
+    @booking_month = (@end_date.to_date - 6.month)
+    
     @new_women_registered = report.new_women_registered
     
     # raise @new_women_registered.to_yaml

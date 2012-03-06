@@ -81,6 +81,22 @@
                   </td>
                 </tr>
                 <tr>
+                  <td style="width: 25%;">
+                    Booking Cohort Year
+                  </td>
+                  <td style="border-left: 1px solid #999; border-bottom: 1px solid #999; 
+                      font-style: italic;">
+                    <%= @booking_month.to_date.strftime("%Y") rescue "" %>&nbsp;
+                  </td>
+                  <td style="width: 25%; border-left: 1px solid #999; border-bottom: 1px solid #999;" align="right">
+                    Booking Cohort Month
+                  </td>
+                  <td style="border-left: 1px solid #999; border-bottom: 1px solid #999; 
+                      font-style: italic;">
+                    <%= @booking_month.to_date.strftime("%B") rescue "" %>&nbsp;
+                  </td>
+                </tr>
+                <tr>
                   <td colspan="3">
                     Was any client served at this site during this month?
                     <span style="font-size: 0.8em">

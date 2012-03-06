@@ -65,18 +65,20 @@
     %>
 
     <form id="frmReport" action="/reports/report" method="post">
-      <select id="selSelect" name="selSelect" helpText="Report By:">
+      <!--select id="selSelect" name="selSelect" helpText="Report By:">
         <option></option>
         <option value="week">Week</option>
         <option value="month">Month</option>
         <option value="quarter">Quarter</option>
         <option value="year">Year</option>
         <option value="range">Select Range</option>
-      </select>
+      </select-->
 
       <input type="text" field_type="date" id="day" name="day" value="" helpText="Select Day:"
              condition="$('selSelect').value == 'day';" />
 
+      <input type="hidden" id="selSelect" name="selSelect" value="month" />
+      
       <select id="selYear" name="selYear" helpText="Select Year:"
               condition="$('selSelect').value == 'month' || $('selSelect').value == 'year' || $('selSelect').value == 'week';">
         <option></option>

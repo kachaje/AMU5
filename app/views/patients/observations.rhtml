@@ -40,6 +40,25 @@
     }
   }
 
+  function hideSelected(pos){
+    selectedSigns += (selectedSigns.length > 0 ? '&' : '') + 'v' + pos + '=' + 
+      __$('touchscreenInput' + tstCurrentPage).value.replace(/\\s/g, '+'); 
+    
+    if(__$('touchscreenInput' + tstCurrentPage).getAttribute('position')){
+      
+      if(__$('sign' + __$('touchscreenInput' + tstCurrentPage).getAttribute('position'))){
+        
+        var url = __$('sign' + __$('touchscreenInput' + tstCurrentPage).getAttribute('position')).getAttribute('ajaxURL');   
+        
+        if(__$('sign' + __$('touchscreenInput' + tstCurrentPage).getAttribute('position'))) { 
+          
+          __$('sign' + __$('touchscreenInput' + tstCurrentPage).getAttribute('position')).setAttribute('ajaxURL',  
+          (url.replace('search_string=', '')) + (selectedSigns.length > 0 ? selectedSigns + '&search_string=' : 'search_string='))
+        }        
+      }      
+    }
+  }
+
   //-->
 </script>
 
@@ -183,12 +202,8 @@
     <% options[:helpText] = "Signs/Symptoms" %>
     <% options[:position] = "#{counter + 1}" %>
     <% options[:id] = "sign#{counter}" %>
-    <% options[:tt_onUnLoad] = "selectedSigns += (selectedSigns.length > 0 ? '&' : '') + 'v#{counter}=' + __$('touchscreenInput' + " + 
-      "tstCurrentPage).value.replace(/\\s/g, '+'); if(__$('touchscreenInput' + tstCurrentPage).getAttribute('position')){" + 
-      "if(__$('sign' + __$('touchscreenInput' + tstCurrentPage).getAttribute('position'))){var url = __$('sign' + __$('touchscreenInput' + tstCurrentPage).getAttribute('position')).getAttribute('ajaxURL'); " + 
-      "(__$('sign' + __$('touchscreenInput' + tstCurrentPage).getAttribute('position') ? (__$('sign' + __$('touchscreenInput' + tstCurrentPage).getAttribute('position')).setAttribute('ajaxURL', " + 
-      "url.replace('search_string=', ''))) : '') + (selectedSigns.length > 0 ? selectedSigns + '&search_string=' : 'search_string='));}}" %>
-  
+    <% options[:tt_onUnLoad] = "hideSelected(#{counter})" %>
+
     <%= text_field_tag("observations[][value_coded_or_text]", nil, options) %>
     <%= hidden_field_tag("observations[][value_text]", nil) %>
     <%= hidden_field_tag("observations[][concept_name]", "DIAGNOSIS", options) %>

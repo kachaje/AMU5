@@ -33,7 +33,7 @@ class PatientsController < ApplicationController
     
     @social_alert = (@all_names.include?("SOCIAL HISTORY") ? false : true)
     
-    @labs_alert = ((@all_names.include?("LAB RESULTS") || @all_names.include?("VITALS")) ? false : true)
+    @labs_alert = ((@all_names.include?("LAB RESULTS")) ? false : true)
     
     @sections = {
       "OBSTETRIC HISTORY" => {},
@@ -68,13 +68,17 @@ class PatientsController < ApplicationController
               end   
             end
           }
-        when "LAB RESULTS" # || "VITALS"
+        when "LAB RESULTS"
           e.observations.each{|o|
             if !o.concept.nil?
               if @sections["LAB RESULTS"][o.concept.name.name]
-                @sections["LAB RESULTS"][o.concept.name.name] = ((o.answer_string rescue 0).to_i > 
-                    (@sections["LAB RESULTS"][o.concept.name.name].to_i) ? (o.answer_string rescue 0) : 
-                    @sections["LAB RESULTS"][o.concept.name.name] )  if !o.concept.nil? 
+                if (o.answer_string rescue 0).to_i > 0
+                  @sections["LAB RESULTS"][o.concept.name.name] = ((o.answer_string rescue 0).to_i > 
+                      (@sections["LAB RESULTS"][o.concept.name.name].to_i) ? (o.answer_string rescue 0) : 
+                      @sections["LAB RESULTS"][o.concept.name.name] )  if !o.concept.nil? 
+                else
+                  @sections["LAB RESULTS"][o.concept.name.name] = (o.answer_string rescue "") if !o.concept.nil?
+                end
               else
                 @sections["LAB RESULTS"][o.concept.name.name] = (o.answer_string rescue "") if !o.concept.nil?
               end   
@@ -624,13 +628,13 @@ class PatientsController < ApplicationController
       }      
     }
     
-    @hb1 = hb["HB TEST RESULT 1"] rescue nil
+    @hb1 = hb["HB TEST RESULT 2"] rescue nil
 
-    @hb1_date = hb["HB TEST RESULT DATE 1"] rescue nil
+    @hb1_date = hb["HB TEST RESULT DATE 2"] rescue nil
 
-    @hb2 = hb["HB TEST RESULT 2"] rescue nil
+    @hb2 = hb["HB TEST RESULT 1"] rescue nil
 
-    @hb2_date = hb["HB TEST RESULT DATE 2"] rescue nil
+    @hb2_date = hb["HB TEST RESULT DATE 1"] rescue nil
 
     @cd4 = syphil['CD4 COUNT'] rescue nil
 

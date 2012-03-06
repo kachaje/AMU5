@@ -50,6 +50,7 @@ class Observation < ActiveRecord::Base
     return if value_coded_or_text.blank?
     
     value_coded_name = ConceptName.find_by_name(value_coded_or_text)
+    
     if value_coded_name.nil?
       # TODO: this should not be done this way with a brittle hard ref to concept name
       self.concept_name = "DIAGNOSIS, NON-CODED" if self.concept && self.concept.name && self.concept.fullname == "DIAGNOSIS" rescue nil

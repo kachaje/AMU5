@@ -980,7 +980,7 @@ EOF
     label.draw_text("Refer",750,29,0,1,1,2,true)
     label.draw_line(25,60,172,1,0)
     label.draw_line(400,60,152,1,0)
-    label.draw_text("Gravida",28,80,0,2,1,1,false)
+    label.draw_text("C-Sections",28,80,0,2,1,1,false)
     label.draw_text("Asthma",400,80,0,2,1,1,false)
     label.draw_text("Deliveries",28,110,0,2,1,1,false)
     label.draw_text("Hypertension",400,110,0,2,1,1,false)
@@ -1018,7 +1018,7 @@ EOF
     label.draw_line(659,220,130,1,0)
     label.draw_line(659,250,130,1,0)
     label.draw_line(659,280,130,1,0)
-    label.draw_text("#{@gravida}",280,80,0,2,1,1,false)
+    label.draw_text("#{@csections}",280,80,0,2,1,1,false)
     label.draw_text("#{@deliveries}",280,110,0,2,1,1,(@deliveries > 4 ? true : false))
     label.draw_text("#{@abortions}",280,140,0,2,1,1,(@abortions > 1 ? true : false))
     label.draw_text("#{(!@stillbirths.nil? ? (@stillbirths.upcase == "NO" ? "NO" : "YES") : "")}",280,170,0,2,1,1,
