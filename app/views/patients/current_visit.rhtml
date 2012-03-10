@@ -44,8 +44,9 @@
       </div>
       <div style="display: table-row">
         <div style="display: table-cell">
-          <button class="<%= (@encounters.include?("VITALS") ? "gray" : "blue") %>"
-                  onclick="<%= (@encounters.include?("VITALS") ? "" :
+          <button class="blue<%#= (@encounters.include?("VITALS") ? "gray" : "blue") %>"
+                  onclick="window.location = '/encounters/new/vitals?patient_id=<%= @patient.id %>'
+                      <%#= (@encounters.include?("VITALS") ? "" :
                       "window.location = '/encounters/new/vitals?patient_id=#{@patient.id}'") %> ">
             <span>Vitals</span>
           </button>

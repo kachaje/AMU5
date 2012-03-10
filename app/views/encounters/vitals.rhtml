@@ -164,6 +164,20 @@
     timedEvent = setTimeout('calculateBP(' + pos + ')', 500);
   }
 
+  function getSelected(){
+    var choices = "";
+
+    if(__$('choice')){
+      for(var o = 0; o < __$('choice').options.length; o++){
+        if(__$('choice').options[o].selected == true){
+          choices += __$('choice').options[o].innerHTML + " ";
+        }
+      }
+    }
+    
+    return choices;
+  }
+  
 </script>
 
 <form action="/encounters/create/vitals">
@@ -175,6 +189,10 @@
   <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
   <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+
+  <%= select_tag("choice", options_for_select(["", "Weight", 
+        "Height", "Blood Pressure"]), 
+    {:helpText => 'Select Field(s) of interest', :id => "choice", :multiple => true})%>
 
   <% if ask_temperature %>
     <label for="temperature">Temperature (C)</label>
@@ -202,6 +220,7 @@
     :max => 200, # number_with_precision(@patient.max_weight, :precision => 1),
     :absoluteMin => 40,
     :absoluteMax => 200,
+    :condition => "getSelected().match(/Weight/)",
     :units => 'kg',
     :validationRule => "([0-9]+(\\.[0-9])?)|Unknown$",
     :validationMessage => "You must enter a number",
@@ -224,6 +243,7 @@
       :max => number_with_precision(@patient.max_height, :precision => 1),
       :absoluteMin => 10,
       :absoluteMax => 228,
+      :condition => "getSelected().match(/Height/)",
       :units => 'cm',
       :validationRule => "^([0-9]+)|Unknown$",
       :validationMessage => "You must enter numbers only (for example 157)",
@@ -240,6 +260,7 @@
       :tt_pageStyleClass => "NumbersWithUnknown",
       :tt_onLoad => "timedEvent = setTimeout('calculateBP(1)', 100);",
       :tt_onUnLoad => "clearTimeout(timedEvent);",
+      :condition => "getSelected().match(/Blood\sPressure/)",
       :absoluteMin => 0,
       :max => 250
     }) %>
@@ -258,7 +279,7 @@
       :tt_onUnLoad => "clearTimeout(timedEvent);",
       :absoluteMin => 0,
       :max => 180,
-      :condition => "__$('systolic_blood_pressure').value.toLowerCase() != 'unknown'"
+      :condition => "getSelected().match(/Blood\sPressure/) && __$('systolic_blood_pressure').value.toLowerCase() != 'unknown'"
     }) %>
 
   <%= text_field_tag("observations[][value_numeric]", nil,options) %>
