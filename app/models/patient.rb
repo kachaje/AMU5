@@ -617,13 +617,13 @@ EOF
             @obstetrics[pos]["CONDITION AT BIRTH"] : "") : "").titleize
         
       @birt_weig = (@obstetrics[pos] ? (@obstetrics[pos]["BIRTH WEIGHT"] ? 
-                @obstetrics[pos]["BIRTH WEIGHT"] : "") : "")
+            @obstetrics[pos]["BIRTH WEIGHT"] : "") : "")
       
       @dea = (@obstetrics[pos] ? (@obstetrics[pos]["AGE AT DEATH"] ? 
-                  (@obstetrics[pos]["AGE AT DEATH"].to_s.match(/\.[1-9]/) ? @obstetrics[pos]["AGE AT DEATH"] : 
-                    @obstetrics[pos]["AGE AT DEATH"].to_i) : "") : "").to_s + 
-              (@obstetrics[pos] ? (@obstetrics[pos]["UNITS OF AGE OF CHILD"] ? 
-                  @obstetrics[pos]["UNITS OF AGE OF CHILD"] : "") : "")
+            (@obstetrics[pos]["AGE AT DEATH"].to_s.match(/\.[1-9]/) ? @obstetrics[pos]["AGE AT DEATH"] : 
+              @obstetrics[pos]["AGE AT DEATH"].to_i) : "") : "").to_s + 
+        (@obstetrics[pos] ? (@obstetrics[pos]["UNITS OF AGE OF CHILD"] ? 
+            @obstetrics[pos]["UNITS OF AGE OF CHILD"] : "") : "")
       
       if pos <= 3
         
@@ -910,18 +910,16 @@ EOF
         Encounter.active.find(:all).collect{|e| e.encounter_id},
         ConceptName.find_by_name('STILL BIRTH').concept_id]).answer_string rescue nil
 
-    #Observation.find(:all, :conditions => ["person_id = ? AND encounter_id IN (?) AND value_coded = ?", 40, Encounter.active.find(:all, :conditions => ["patient_id = ?", 40]).collect{|e| e.encounter_id}, ConceptName.find_by_name('Caesarean section').concept_id])
-    
-    @csections = Observation.find(:all,
-      :conditions => ["person_id = ? AND encounter_id IN (?) AND value_coded = ?", @patient.id,
-        Encounter.active.find(:all, :conditions => ["patient_id = ?", @patient.id]).collect{|e| e.encounter_id},
-        ConceptName.find_by_name('Caesarean section').concept_id]).length rescue nil
-
-    @vacuum = Observation.find(:all,
-      :conditions => ["person_id = ? AND encounter_id IN (?) AND value_coded = ?", @patient.id,
-        Encounter.active.find(:all, :conditions => ["patient_id = ?", @patient.id]).collect{|e| e.encounter_id},
-        ConceptName.find_by_name('Vacuum extraction delivery').concept_id]).length rescue nil
-
+    @csections = Encounter.active.find(:all, :conditions => ["patient_id = ? AND encounter_type = ?", 
+        @patient.id, EncounterType.find_by_name("OBSTETRIC HISTORY").id]).collect{|e| 
+      e.observations.collect{|o| o.answer_string if o.answer_string.match(/caesarean\ssection/i)}
+    }.flatten.delete_if{|x| x.nil?}.length rescue nil
+      
+    @vacuum = Encounter.active.find(:all, :conditions => ["patient_id = ? AND encounter_type = ?", 
+        @patient.id, EncounterType.find_by_name("OBSTETRIC HISTORY").id]).collect{|e| 
+      e.observations.collect{|o| o.answer_string if o.answer_string.match(/Vacuum\sextraction\sdelivery/i)}
+    }.flatten.delete_if{|x| x.nil?}.length rescue nil
+      
     @symphosio = Observation.find(:last, 
       :conditions => ["person_id = ? AND encounter_id IN (?) AND concept_id = ?", @patient.id,
         Encounter.active.find(:all).collect{|e| e.encounter_id},
@@ -1018,7 +1016,8 @@ EOF
     label.draw_line(659,220,130,1,0)
     label.draw_line(659,250,130,1,0)
     label.draw_line(659,280,130,1,0)
-    label.draw_text("#{@csections}",280,80,0,2,1,1,false)
+    label.draw_text("#{(!@csections.nil? ? (@csections <= 0 ? "NO" : "YES") : "")}",280,80,0,2,1,1,
+      (!@csections.nil? ? (@csections <= 0 ? false : true) : false))
     label.draw_text("#{@deliveries}",280,110,0,2,1,1,(@deliveries > 4 ? true : false))
     label.draw_text("#{@abortions}",280,140,0,2,1,1,(@abortions > 1 ? true : false))
     label.draw_text("#{(!@stillbirths.nil? ? (@stillbirths.upcase == "NO" ? "NO" : "YES") : "")}",280,170,0,2,1,1,

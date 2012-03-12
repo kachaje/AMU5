@@ -503,20 +503,16 @@ class PatientsController < ApplicationController
           Encounter.active.find(:all).collect{|e| e.encounter_id},
           ConceptName.find_by_name('STILL BIRTH').concept_id]).answer_string.upcase rescue nil
 
-      #Observation.find(:all, :conditions => ["person_id = ? AND encounter_id IN (?) AND value_coded = ?", 40, Encounter.active.find(:all, :conditions => ["patient_id = ?", 40]).collect{|e| e.encounter_id}, ConceptName.find_by_name('Caesarean section').concept_id])
-    
-      @csections = Observation.find(:all,
-        :conditions => ["person_id = ? AND encounter_id IN (?) AND value_coded = ?", @patient.id,
-          Encounter.active.find(:all, :conditions => ["patient_id = ? AND encounter_type = ?", @patient.id, 
-              EncounterType.find_by_name("OBSTETRIC HISTORY").id]).collect{|e| e.encounter_id},
-          ConceptName.find_by_name('Caesarean section').concept_id]).length rescue nil
+      @csections = Encounter.active.find(:all, :conditions => ["patient_id = ? AND encounter_type = ?", 
+          @patient.id, EncounterType.find_by_name("OBSTETRIC HISTORY").id]).collect{|e| 
+        e.observations.collect{|o| o.answer_string if o.answer_string.match(/caesarean\ssection/i)}
+      }.flatten.delete_if{|x| x.nil?}.length rescue nil
 
-      @vacuum = Observation.find(:all,
-        :conditions => ["person_id = ? AND encounter_id IN (?) AND value_coded = ?", @patient.id,
-          Encounter.active.find(:all, :conditions => ["patient_id = ? AND encounter_type = ?", 
-              @patient.id, EncounterType.find_by_name("OBSTETRIC HISTORY").id]).collect{|e| e.encounter_id},
-          ConceptName.find_by_name('Vacuum extraction delivery').concept_id]).length rescue nil
-
+      @vacuum = Encounter.active.find(:all, :conditions => ["patient_id = ? AND encounter_type = ?", 
+          @patient.id, EncounterType.find_by_name("OBSTETRIC HISTORY").id]).collect{|e| 
+        e.observations.collect{|o| o.answer_string if o.answer_string.match(/Vacuum\sextraction\sdelivery/i)}
+      }.flatten.delete_if{|x| x.nil?}.length rescue nil
+      
       @symphosio = Observation.find(:last, 
         :conditions => ["person_id = ? AND encounter_id IN (?) AND concept_id = ?", @patient.id,
           Encounter.active.find(:all).collect{|e| e.encounter_id},
