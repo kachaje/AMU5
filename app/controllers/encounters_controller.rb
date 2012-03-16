@@ -112,7 +112,7 @@ class EncountersController < ApplicationController
         "REGISTRATION")
       
     redirect_to "/patients/current_visit/?patient_id=#{@patient.id}" and return if ((encounter.type.name.upcase rescue "") == 
-        "ANC VISIT TYPE")
+        "ANC VISIT TYPE" || (encounter.type.name.upcase rescue "") == "CURRENT PREGNANCY")
     
     # Go to the next task in the workflow (or dashboard)
     redirect_to next_task(@patient) 

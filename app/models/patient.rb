@@ -1499,7 +1499,11 @@ EOF
         
         use = encounters[encounter[0]]["USER"] rescue ""
           
-        label.draw_text(use,710,200,0,2,1,1,false)
+        use = paragraphate(use.to_s, 7, 5)
+        
+        (0..(use.length)).each{|m|
+          label.draw_text(use[m],710,(200 + (18 * m)),0,2,1,1,false)
+        }
         
       end
     end

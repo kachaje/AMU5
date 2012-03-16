@@ -829,6 +829,15 @@ class PatientsController < ApplicationController
   def current_visit
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     
+    @current_range = Patient.active_range(@patient.id, (session[:datetime] ? session[:datetime].to_date : Date.today)) # rescue nil
+
+    @encounters = @patient.encounters.active.find(:all, :conditions => ["encounter_datetime >= ? AND encounter_datetime <= ?", 
+        @current_range[0]["START"], @current_range[0]["END"]]) rescue []
+    
+    @names = @encounters.collect{|e|
+      e.name.upcase
+    }.uniq
+    
     @encounters = @patient.encounters.active.find(:all, :conditions => ["encounter_type IN (?) AND " + 
           "DATE_FORMAT(encounter_datetime, '%Y-%m-%d') = ?",
         EncounterType.find(:all, :conditions => ["name in ('OBSERVATIONS', 'VITALS', 'TREATMENT', 'LAB RESULTS', " +

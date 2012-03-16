@@ -36,6 +36,7 @@
         <select id="links">
           <option value='/patients/patient_history/?patient_id=<%= @patient.id  %>'>Patient History</option>
 
+          <!--
           <% if !@names.include?("CURRENT PREGNANCY") %>
           
             <option value='/patients/current_pregnancy/?patient_id=<%= @patient.id  %>'>Current Pregnancy</option>
@@ -45,6 +46,8 @@
             <option value='/patients/hiv_status/?patient_id=<%= @patient.id  %>'>Pregnancy Update</option>
             
           <% end %>
+          -->
+          
           <option value='/patients/<%= (@current_encounter_names.include?("ANC VISIT TYPE") ? 
               "current_visit" : "visit_type") %>/?patient_id=<%= @patient.id  %>'>Current Visit</option>
           <option value='/patients/demographics?patient_id=<%= @patient.id %>'>Full Demographics</option>
