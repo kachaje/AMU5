@@ -11,27 +11,26 @@ class Reports
     @end_age = end_age
     @type = type
     
-    @enddate = ((@end_date.to_date - 6.month).strftime("%Y-%m-01").to_date - 1.day).strftime("%Y-%m-%d")
+    @enddate = ((@end_date.to_date - 5.month).strftime("%Y-%m-01").to_date - 1.day).strftime("%Y-%m-%d")
     @startdate = (@enddate.to_date).strftime("%Y-%m-01")
     
     @cohortpatients = Encounter.find(:all, :joins => [:observations], :group => [:patient_id], 
       :select => ["MAX(obs_datetime) encounter_datetime, patient_id"], 
-      :conditions => ["encounter_type = ? AND concept_id = ? AND (encounter_datetime >= ? " + 
-          "AND encounter_datetime <= ?) AND value_numeric = 1", 
+      :conditions => ["encounter_type = ? AND concept_id = ? AND (DATE(encounter_datetime) >= ? " + 
+          "AND DATE(encounter_datetime) <= ?) AND value_numeric = 1 AND encounter.voided = 0", 
         EncounterType.find_by_name("ANC VISIT TYPE").id, 
         ConceptName.find_by_name("Reason For Visit").concept_id, 
-        @startdate, @enddate]).collect{|e| e.patient_id}
+        @startdate, @enddate]).collect{|e| e.patient_id}.uniq
     
   end
 
   def new_women_registered
-    Encounter.find(:all, :select => [:patient_id], 
-      :conditions => ["patient_id IN (?) AND encounter_datetime IN (?) AND 
-              (encounter_datetime >= ? AND encounter_datetime <= ?)", 
-        @cohortpatients, Encounter.find(:all, :group => [:patient_id], 
-          :select => ["MIN(encounter_datetime) encounter_datetime"]).collect{|e| 
-          e.encounter_datetime
-        }, @start_date, @end_date]).collect{|o| o.patient_id}.uniq
+    Encounter.find(:all, :joins => [:observations], :select => ["patient_id"], 
+      :conditions => ["encounter_type = ? AND concept_id = ? AND (DATE(encounter_datetime) >= ? " + 
+          "AND DATE(encounter_datetime) <= ?) AND value_numeric = 1 AND encounter.voided = 0", 
+        EncounterType.find_by_name("ANC VISIT TYPE").id, 
+        ConceptName.find_by_name("Reason For Visit").concept_id, 
+        @start_date, @end_date]).collect{|e| e.patient_id}.uniq    
   end
   
 	def observations_total

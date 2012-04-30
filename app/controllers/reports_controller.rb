@@ -110,6 +110,8 @@ class ReportsController < ApplicationController
 	def report
     @facility = Location.current_health_center.name rescue ''
     
+    # raise @facility.to_yaml
+    
 		@start_date = nil
 		@end_date = nil
 		@start_age = params[:startAge]
