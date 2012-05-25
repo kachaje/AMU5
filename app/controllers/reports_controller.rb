@@ -193,7 +193,7 @@ class ReportsController < ApplicationController
 
 		@syphilis_result_neg = report.syphilis_result_neg
 
-		@syphilis_result_unk = @observations_total - @syphilis_result_pos - @syphilis_result_neg #report.syphilis_result_unk
+		@syphilis_result_unk = report.syphilis_result_unk
 
 		@hiv_test_result_prev_neg = report.hiv_test_result_prev_neg
 

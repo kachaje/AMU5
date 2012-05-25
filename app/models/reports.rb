@@ -201,7 +201,7 @@ class Reports
           "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", "SP (3 tablets)", 
         @startdate, @end_date, @cohortpatients]).collect{|o| 
       [o.patient_id, o.orderer]      
-    }.delete_if{|x,y| y > 1}.collect{|p, c| p}
+    }.delete_if{|x,y| y != 1}.collect{|p, c| p}
     
 	end
 
@@ -215,7 +215,7 @@ class Reports
           "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", "SP (3 tablets)", 
         @startdate, @end_date, @cohortpatients]).collect{|o| 
       [o.patient_id, o.orderer]      
-    }.delete_if{|x,y| y < 2}.collect{|p, c| p}
+    }.delete_if{|x,y| y != 2}.collect{|p, c| p}
     
 	end
 
@@ -377,18 +377,18 @@ class Reports
     
     on_art = Encounter.find(:all, :joins => [:observations], :group => ["patient_id"], 
       :select => ["patient_id, MAX(encounter_datetime) encounter_datetime"], 
-      :conditions => ["concept_id = ? AND value_coded = ? AND (encounter_datetime >= ? " + 
+      :conditions => ["concept_id = ? AND (value_coded = ? OR value_text = ?) AND (encounter_datetime >= ? " + 
           "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", 
-        ConceptName.find_by_name("On ART").concept, 
-        ConceptName.find_by_name("Yes").concept_id, 
+        ConceptName.find_by_name("On ART").concept_id, 
+        ConceptName.find_by_name("Yes").concept_id, "Yes", 
         @startdate, @end_date, @cohortpatients]).collect{|e| e.patient_id}
     
     hiv_pos = Encounter.find(:all, :joins => [:observations], :group => ["patient_id"], 
       :select => ["patient_id, MAX(encounter_datetime) encounter_datetime"], 
-      :conditions => ["concept_id = ? AND value_coded = ? AND (encounter_datetime >= ? " + 
+      :conditions => ["concept_id = ? AND (value_coded = ? OR value_text = ?) AND (encounter_datetime >= ? " + 
           "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", 
-        ConceptName.find_by_name("HIV status").concept, 
-        ConceptName.find_by_name("Positive").concept_id, 
+        ConceptName.find_by_name("HIV status").concept_id, 
+        ConceptName.find_by_name("Positive").concept_id, "Positive", 
         @startdate, @end_date, @cohortpatients]).collect{|e| e.patient_id}
     
     hiv_pos - on_art
@@ -402,7 +402,7 @@ class Reports
       :select => ["patient_id, MAX(encounter_datetime) encounter_datetime"], 
       :conditions => ["concept_id = ? AND value_text = ? AND (encounter_datetime >= ? " + 
           "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", 
-        ConceptName.find_by_name("Date Antiretrovirals Started").concept, 
+        ConceptName.find_by_name("Date Antiretrovirals Started").concept_id, 
         "Before This Pregnancy", 
         @startdate, @end_date, @cohortpatients]).collect{|e| e.patient_id}
     
@@ -414,7 +414,7 @@ class Reports
       :select => ["patient_id, MAX(encounter_datetime) encounter_datetime"], 
       :conditions => ["concept_id = ? AND value_text = ? AND (encounter_datetime >= ? " + 
           "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", 
-        ConceptName.find_by_name("Date Antiretrovirals Started").concept, 
+        ConceptName.find_by_name("Date Antiretrovirals Started").concept_id, 
         "At 0-27 weeks of Pregnancy", 
         @startdate, @end_date, @cohortpatients]).collect{|e| e.patient_id}
     
@@ -426,7 +426,7 @@ class Reports
       :select => ["patient_id, MAX(encounter_datetime) encounter_datetime"], 
       :conditions => ["concept_id = ? AND value_text = ? AND (encounter_datetime >= ? " + 
           "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", 
-        ConceptName.find_by_name("Date Antiretrovirals Started").concept, 
+        ConceptName.find_by_name("Date Antiretrovirals Started").concept_id, 
         "At 28+ of Pregnancy", 
         @startdate, @end_date, @cohortpatients]).collect{|e| e.patient_id}
     
@@ -436,10 +436,10 @@ class Reports
     
     Encounter.find(:all, :joins => [:observations], :group => ["patient_id"], 
       :select => ["patient_id, MAX(encounter_datetime) encounter_datetime"], 
-      :conditions => ["concept_id = ? AND value_coded = ? AND (encounter_datetime >= ? " + 
+      :conditions => ["concept_id = ? AND (value_coded = ? OR value_text = ?) AND (encounter_datetime >= ? " + 
           "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", 
-        ConceptName.find_by_name("Is on CPT").concept, 
-        ConceptName.find_by_name("Yes").concept_id, 
+        ConceptName.find_by_name("Is on CPT").concept_id, 
+        ConceptName.find_by_name("Yes").concept_id, "Yes", 
         @startdate, @end_date, @cohortpatients]).collect{|e| e.patient_id}
     
 	end
@@ -508,10 +508,10 @@ class Reports
   def bed_net
     
     Encounter.find(:all, :joins => [:observations], 
-      :conditions => ["concept_id = ? AND value_coded = ? AND (encounter_datetime >= ? " + 
+      :conditions => ["concept_id = ? AND (value_coded = ? OR value_text = ?) AND (encounter_datetime >= ? " + 
           "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", 
-        ConceptName.find_by_name("Mosquito Net").concept, 
-        ConceptName.find_by_name("Yes").concept_id, 
+        ConceptName.find_by_name("Mosquito Net").concept_id, 
+        ConceptName.find_by_name("Yes").concept_id, "Yes", 
         @startdate, @end_date, @cohortpatients]).collect{|e| e.patient_id}
     
   end
