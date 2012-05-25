@@ -157,8 +157,8 @@ class Reports
     patients = {}
     
     Encounter.find(:all, :joins => [:observations], 
-      :select => ["patient_id, value_numeric form_id"], 
-      :conditions => ["concept_id = ? AND value_numeric > 0 AND (encounter_datetime >= ? " + 
+      :select => ["patient_id, (COALESCE(value_numeric,0)+COALESCE(value_text,0)) form_id"], 
+      :conditions => ["concept_id = ? AND (value_numeric > 0 OR value_text > 0) AND (encounter_datetime >= ? " + 
           "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", 
         ConceptName.find_by_name("TT STATUS").concept_id, 
         @startdate, @end_date, @cohortpatients]).each{|e| 
@@ -167,14 +167,12 @@ class Reports
     Order.find(:all, :joins => [[:drug_order => :drug], :encounter], 
       :select => ["encounter.patient_id, count(*) encounter_id"], 
       :group => [:patient_id], :conditions => ["drug.name LIKE ? AND (encounter_datetime >= ? " + 
-          "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", "%TTV%", 
+          "AND encounter_datetime <= ?) AND encounter.patient_id IN (?) AND orders.voided = 0", "%TTV%", 
         @startdate, @end_date, @cohortpatients]).collect{|o| 
       [o.patient_id, o.encounter_id] }.delete_if{|p, e| 
-      v = 0; 
-      if patients[p]
-        v = patients[p]
-      end
-      v + e < 2        
+      v = 0;       
+      v = patients[p] if patients[p]      
+      v.to_i + e.to_i < 2        
     }.collect{|x, y| x}
     
 	end
@@ -195,12 +193,11 @@ class Reports
 	def fansida__sp___number_of_tablets_given_1
     
     Order.find(:all, :joins => [[:drug_order => :drug], :encounter], 
-      :select => ["encounter.patient_id, count(*) encounter_id, drug.name instructions, " + 
-          "DATEDIFF(auto_expire_date, start_date) orderer"], 
+      :select => ["encounter.patient_id, count(*) encounter_id, drug.name instructions"], 
       :group => [:patient_id], :conditions => ["drug.name = ? AND (encounter_datetime >= ? " + 
           "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", "SP (3 tablets)", 
         @startdate, @end_date, @cohortpatients]).collect{|o| 
-      [o.patient_id, o.orderer]      
+      [o.patient_id, o.encounter_id]      
     }.delete_if{|x,y| y != 1}.collect{|p, c| p}
     
 	end
@@ -209,12 +206,11 @@ class Reports
 	def fansida__sp___number_of_tablets_given_2
         
     Order.find(:all, :joins => [[:drug_order => :drug], :encounter], 
-      :select => ["encounter.patient_id, count(*) encounter_id, drug.name instructions, " + 
-          "DATEDIFF(auto_expire_date, start_date) orderer"], 
+      :select => ["encounter.patient_id, count(*) encounter_id, drug.name instructions"], 
       :group => [:patient_id], :conditions => ["drug.name = ? AND (encounter_datetime >= ? " + 
           "AND encounter_datetime <= ?) AND encounter.patient_id IN (?)", "SP (3 tablets)", 
         @startdate, @end_date, @cohortpatients]).collect{|o| 
-      [o.patient_id, o.orderer]      
+      [o.patient_id, o.encounter_id]      
     }.delete_if{|x,y| y != 2}.collect{|p, c| p}
     
 	end
@@ -371,7 +367,6 @@ class Reports
         @startdate, @end_date, @cohortpatients]).collect{|e| e.patient_id}
     
 	end
-
 
 	def not_on_art
     
